@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peşinat Takip Tablosu</title>
+    <title>Peşinat Takip Tablosu (Offline)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,21 +14,6 @@
     
     <!-- Babel (JSX Derleyicisi) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, serverTimestamp, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        window.firebaseModules = {
-            initializeApp, getApps,
-            getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken,
-            getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, serverTimestamp, arrayUnion
-        };
-        
-        window.dispatchEvent(new Event('firebase-ready'));
-    </script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -46,6 +31,7 @@
         const { useState, useEffect, useRef, useMemo } = React;
         
         // --- SABİT İKON TANIMLARI (SVG PATHLERİ) ---
+        // Dış kütüphane bağımlılığı yoktur.
         const ICON_PATHS = {
             'trash-2': <><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></>,
             'plus-circle': <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></>,
@@ -74,32 +60,20 @@
             'list': <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></>,
             'paperclip': <><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></>,
             'lock': <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
-            'log-in': <><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></>
+            'log-in': <><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></>,
+            'hard-drive': <><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></>
         };
 
         const Icon = ({ name, size = 20, className, ...props }) => {
             const content = ICON_PATHS[name];
             if (!content) return null;
             return (
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width={size} 
-                    height={size} 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    className={className} 
-                    {...props}
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
                     {content}
                 </svg>
             );
         };
 
-        // İkon bileşenlerini eşle
         const Icons = {
             Trash2: (p) => <Icon name="trash-2" {...p} />,
             PlusCircle: (p) => <Icon name="plus-circle" {...p} />,
@@ -128,59 +102,31 @@
             List: (p) => <Icon name="list" {...p} />,
             Paperclip: (p) => <Icon name="paperclip" {...p} />,
             Lock: (p) => <Icon name="lock" {...p} />,
-            LogIn: (p) => <Icon name="log-in" {...p} />
+            LogIn: (p) => <Icon name="log-in" {...p} />,
+            HardDrive: (p) => <Icon name="hard-drive" {...p} />
         };
 
-        // --- MAIN APPLICATION COMPONENT (Sadece modüller yüklendiğinde çalışır) ---
+        // --- LOCAL STORAGE ANAHTARI ---
+        const STORAGE_KEY = 'pesinat_takip_v1';
+
+        // --- MAIN APPLICATION COMPONENT ---
         function MainApp() {
-            // Firebase modüllerini güvenli bir şekilde al
-            const { 
-                initializeApp, getApps, getAuth, getFirestore,
-                signInAnonymously, onAuthStateChanged, signInWithCustomToken, 
-                collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, serverTimestamp, arrayUnion 
-            } = window.firebaseModules;
-
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-            // Firebase Init Ref
-            const firebaseRefs = useRef(null);
-
-            // Initialize Firebase once
-            if (!firebaseRefs.current) {
-                const manualConfig = null;
-                let firebaseConfig;
-                try {
-                    firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : manualConfig;
-                } catch(e) { console.error("Config hatası"); }
-
-                if (firebaseConfig) {
-                    try {
-                        const existingApps = getApps();
-                        const app = existingApps.length > 0 ? existingApps[0] : initializeApp(firebaseConfig);
-                        firebaseRefs.current = {
-                            app,
-                            auth: getAuth(app),
-                            db: getFirestore(app)
-                        };
-                    } catch (e) {
-                        console.error("Firebase init hatası:", e);
-                    }
-                }
-            }
-
-            const { auth, db } = firebaseRefs.current || {};
-
-            if (!auth || !db) return <div className="p-10 text-red-600 text-center font-bold">Firebase Bağlantı Hatası: Konfigürasyon eksik veya hatalı.</div>;
-
             // --- STATE'LER ---
             const [isAuthenticated, setIsAuthenticated] = useState(false);
             const [loginId, setLoginId] = useState('');
             const [loginPass, setLoginPass] = useState('');
             const [loginError, setLoginError] = useState('');
 
-            const [entries, setEntries] = useState([]);
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(false);
+            // Verileri LocalStorage'dan yükle
+            const [entries, setEntries] = useState(() => {
+                try {
+                    const savedData = localStorage.getItem(STORAGE_KEY);
+                    return savedData ? JSON.parse(savedData) : [];
+                } catch (e) {
+                    console.error("Veri yükleme hatası:", e);
+                    return [];
+                }
+            });
             
             const [viewMode, setViewMode] = useState('list');
             const [searchTerm, setSearchTerm] = useState('');
@@ -188,7 +134,6 @@
 
             const [editingItem, setEditingItem] = useState(null);
             const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-            const [historyViewItem, setHistoryViewItem] = useState(null);
             const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
             
             const [formData, setFormData] = useState({
@@ -204,76 +149,40 @@
             const fileInputRef = useRef(null);
             const editFileInputRef = useRef(null);
 
+            // Veriler değiştiğinde LocalStorage'a kaydet
+            useEffect(() => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+            }, [entries]);
+
+            // Otomatik Makbuz No Hesaplama (Her veri değişiminde)
+            useEffect(() => {
+                let maxReceiptNo = 0;
+                entries.forEach(entry => {
+                    const num = parseInt(entry.receiptNo || "0", 10);
+                    if (!isNaN(num) && num > maxReceiptNo) {
+                        maxReceiptNo = num;
+                    }
+                });
+                const nextNo = (maxReceiptNo + 1).toString().padStart(6, '0');
+                
+                setFormData(prev => {
+                    // Kullanıcı henüz bir şey yazmadıysa numarayı güncelle
+                    if (!prev.staffName && !prev.amount && !prev.customerName) {
+                        return { ...prev, receiptNo: nextNo };
+                    }
+                    return prev;
+                });
+            }, [entries]);
+
             const handleLogin = (e) => {
                 e.preventDefault();
                 if (loginId === '1052519451' && loginPass === 'icardi1905') {
                     setIsAuthenticated(true);
-                    setLoading(true);
                     setLoginError('');
                 } else {
                     setLoginError('Hatalı ID veya Şifre!');
                 }
             };
-
-            useEffect(() => {
-                if (!isAuthenticated || !auth) return;
-
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Auth error:", error);
-                        setLoading(false);
-                    }
-                };
-                initAuth();
-
-                const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-                    setUser(currentUser);
-                    if (!currentUser) setLoading(false);
-                });
-                return () => unsubscribe();
-            }, [isAuthenticated, auth]);
-
-            useEffect(() => {
-                if (!user || !db) return;
-
-                const collectionRef = collection(db, 'artifacts', appId, 'users', user.uid, 'pesinatlar');
-                const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
-                    const newEntries = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    newEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
-                    setEntries(newEntries);
-                    setLoading(false);
-
-                    let maxReceiptNo = 0;
-                    newEntries.forEach(entry => {
-                        const num = parseInt(entry.receiptNo || "0", 10);
-                        if (!isNaN(num) && num > maxReceiptNo) {
-                            maxReceiptNo = num;
-                        }
-                    });
-                    const nextNo = (maxReceiptNo + 1).toString().padStart(6, '0');
-                    
-                    setFormData(prev => {
-                        if (!prev.staffName && !prev.amount && !prev.customerName) {
-                            return { ...prev, receiptNo: nextNo };
-                        }
-                        return prev;
-                    });
-                }, (error) => {
-                    console.error("Data error:", error);
-                    setLoading(false);
-                });
-
-                return () => unsubscribe();
-            }, [user, db]);
 
             const handleImageUpload = (file, callback) => {
                 if (!file) return;
@@ -300,38 +209,98 @@
             const handleFileChange = (e) => { const file = e.target.files[0]; handleImageUpload(file, (base64) => { setFormData(prev => ({ ...prev, image: base64 })); }); };
             const handleEditFileChange = (e) => { const file = e.target.files[0]; handleImageUpload(file, (base64) => { setEditingItem(prev => ({ ...prev, image: base64 })); }); };
 
-            const handleSubmit = async (e) => {
+            const handleSubmit = (e) => {
                 e.preventDefault();
-                if (!formData.staffName || !formData.amount || !user) return;
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'pesinatlar'), {
-                        ...formData, amount: parseFloat(formData.amount), status: 'Teslim Edilmedi', history: [], createdAt: serverTimestamp()
-                    });
-                    const currentNo = parseInt(formData.receiptNo || "0", 10);
-                    const nextNo = (currentNo + 1).toString().padStart(6, '0');
-                    setFormData({ receiptNo: nextNo, date: formData.date, staffName: '', office: '', customerName: '', amount: '', image: null });
-                    if (fileInputRef.current) fileInputRef.current.value = "";
-                } catch (error) { alert("Hata oluştu: " + error.message); }
+                if (!formData.staffName || !formData.amount) return;
+                
+                const newEntry = {
+                    id: Date.now().toString(), // Benzersiz ID
+                    ...formData,
+                    amount: parseFloat(formData.amount),
+                    status: 'Teslim Edilmedi',
+                    history: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                setEntries(prev => [...prev, newEntry]);
+                
+                // Formu temizle
+                const currentNo = parseInt(formData.receiptNo || "0", 10);
+                const nextNo = (currentNo + 1).toString().padStart(6, '0');
+                setFormData({ receiptNo: nextNo, date: formData.date, staffName: '', office: '', customerName: '', amount: '', image: null });
+                if (fileInputRef.current) fileInputRef.current.value = "";
             };
 
             const handleDeleteClick = (id) => setDeleteConfirmId(id);
-            const confirmDelete = async () => { if (!user || !deleteConfirmId) return; try { await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'pesinatlar', deleteConfirmId)); setDeleteConfirmId(null); } catch (error) { alert("Silme hatası."); } };
+            
+            const confirmDelete = () => {
+                setEntries(prev => prev.filter(item => item.id !== deleteConfirmId));
+                setDeleteConfirmId(null);
+            };
+
             const handleEditClick = (item) => setEditingItem({ ...item, original: { ...item } });
             const handleEditChange = (e) => { const { name, value } = e.target; setEditingItem(prev => ({ ...prev, [name]: value })); };
             
-            const saveEdit = async () => {
-                if (!user || !editingItem) return;
-                const hasChanges = editingItem.receiptNo !== editingItem.original.receiptNo || editingItem.date !== editingItem.original.date || editingItem.staffName !== editingItem.original.staffName || editingItem.office !== editingItem.original.office || editingItem.customerName !== editingItem.original.customerName || parseFloat(editingItem.amount) !== editingItem.original.amount || editingItem.status !== editingItem.original.status || editingItem.image !== editingItem.original.image;
+            const saveEdit = () => {
+                if (!editingItem) return;
+                
+                const hasChanges = editingItem.receiptNo !== editingItem.original.receiptNo || 
+                                   editingItem.date !== editingItem.original.date || 
+                                   editingItem.staffName !== editingItem.original.staffName || 
+                                   editingItem.office !== editingItem.original.office || 
+                                   editingItem.customerName !== editingItem.original.customerName || 
+                                   parseFloat(editingItem.amount) !== editingItem.original.amount || 
+                                   editingItem.status !== editingItem.original.status || 
+                                   editingItem.image !== editingItem.original.image;
+                
                 if (!hasChanges) { setEditingItem(null); return; }
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pesinatlar', editingItem.id);
-                    const historyEntry = { updatedAt: new Date().toISOString(), oldData: { receiptNo: editingItem.original.receiptNo || '', date: editingItem.original.date, staffName: editingItem.original.staffName, office: editingItem.original.office || '', customerName: editingItem.original.customerName, amount: editingItem.original.amount, status: editingItem.original.status || 'Teslim Edilmedi' } };
-                    await updateDoc(docRef, { receiptNo: editingItem.receiptNo, date: editingItem.date, staffName: editingItem.staffName, office: editingItem.office, customerName: editingItem.customerName, amount: parseFloat(editingItem.amount), status: editingItem.status, image: editingItem.image, history: arrayUnion(historyEntry) });
-                    setEditingItem(null);
-                } catch (error) { alert("Güncelleme başarısız."); }
+
+                // Geçmiş kaydı oluştur
+                const historyEntry = { 
+                    updatedAt: new Date().toISOString(), 
+                    oldData: { 
+                        receiptNo: editingItem.original.receiptNo || '', 
+                        date: editingItem.original.date, 
+                        staffName: editingItem.original.staffName, 
+                        office: editingItem.original.office || '', 
+                        customerName: editingItem.original.customerName, 
+                        amount: editingItem.original.amount, 
+                        status: editingItem.original.status || 'Teslim Edilmedi' 
+                    } 
+                };
+
+                setEntries(prev => prev.map(item => {
+                    if (item.id === editingItem.id) {
+                        return {
+                            ...item,
+                            receiptNo: editingItem.receiptNo,
+                            date: editingItem.date,
+                            staffName: editingItem.staffName,
+                            office: editingItem.office,
+                            customerName: editingItem.customerName,
+                            amount: parseFloat(editingItem.amount),
+                            status: editingItem.status,
+                            image: editingItem.image,
+                            history: [...(item.history || []), historyEntry]
+                        };
+                    }
+                    return item;
+                }));
+                
+                setEditingItem(null);
             };
             
-            const toggleStatus = async (entry) => { if (!user) return; const newStatus = entry.status === 'Teslim Edildi' ? 'Teslim Edilmedi' : 'Teslim Edildi'; const historyEntry = { updatedAt: new Date().toISOString(), type: 'status_change', oldData: { ...entry } }; try { const entryRef = doc(db, 'artifacts', appId, 'users', user.uid, 'pesinatlar', entry.id); await updateDoc(entryRef, { status: newStatus, history: arrayUnion(historyEntry) }); } catch (error) { console.error(error); } };
+            const toggleStatus = (entry) => {
+                const newStatus = entry.status === 'Teslim Edildi' ? 'Teslim Edilmedi' : 'Teslim Edildi';
+                const historyEntry = { updatedAt: new Date().toISOString(), type: 'status_change', oldData: { ...entry } };
+                
+                setEntries(prev => prev.map(item => {
+                    if (item.id === entry.id) {
+                        return { ...item, status: newStatus, history: [...(item.history || []), historyEntry] };
+                    }
+                    return item;
+                }));
+            };
 
             const printReceipt = (entry) => {
                 const printWindow = window.open('', '', 'width=800,height=600');
@@ -347,7 +316,8 @@
                 const term = searchTerm.toLowerCase(); const status = (e.status || '').toLowerCase(); const receipt = (e.receiptNo || '').toLowerCase();
                 let matchesDate = true; if (dateFilter.start) matchesDate = matchesDate && e.date >= dateFilter.start; if (dateFilter.end) matchesDate = matchesDate && e.date <= dateFilter.end;
                 return (receipt.includes(term) || e.staffName.toLowerCase().includes(term) || e.customerName.toLowerCase().includes(term) || (e.office || '').toLowerCase().includes(term) || status.includes(term)) && matchesDate;
-            });
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
             const formatCurrency = (val) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val);
             const totalAmount = filteredEntries.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
             
@@ -370,7 +340,7 @@
                                 <div className="bg-blue-100 p-4 rounded-full"><Icons.Lock className="w-8 h-8 text-blue-600" /></div>
                             </div>
                             <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">Güvenli Giriş</h2>
-                            <p className="text-center text-slate-500 mb-6 text-sm">Finansal verilere erişmek için kimliğinizi doğrulayın.</p>
+                            <p className="text-center text-slate-500 mb-6 text-sm">Veriler sadece bu cihazda saklanmaktadır.</p>
                             
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div>
@@ -384,13 +354,11 @@
                                 {loginError && (<div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2 animate-pulse"><Icons.AlertCircle className="w-4 h-4" />{loginError}</div>)}
                                 <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2"><Icons.LogIn className="w-4 h-4" /> Giriş Yap</button>
                             </form>
-                            <div className="mt-6 text-center text-xs text-slate-400">Peşinat Takip Sistemi v2.2</div>
+                            <div className="mt-6 text-center text-xs text-slate-400">Peşinat Takip Sistemi v3.0 (Yerel Kayıt)</div>
                         </div>
                     </div>
                 );
             }
-
-            if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Icons.Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>;
 
             // --- RENDER MAIN APP ---
             return (
@@ -451,7 +419,7 @@
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
                             <div>
                                 <h1 className="text-2xl font-bold text-blue-900 flex items-center gap-2"><Icons.Wallet className="w-8 h-8 text-blue-600" /> Peşinat Tablosu</h1>
-                                <p className="text-slate-500 text-sm mt-1 flex items-center gap-1"><Icons.Cloud className="w-3 h-3 text-green-500" /> Güvenli Oturum Açık</p>
+                                <p className="text-slate-500 text-sm mt-1 flex items-center gap-1"><Icons.HardDrive className="w-3 h-3 text-green-500" /> Veriler cihazınızda saklanıyor</p>
                             </div>
                             <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
                                 <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}><Icons.List className="w-4 h-4" /> Liste</button>
@@ -583,23 +551,8 @@
             );
         }
 
-        function App() {
-            const [loaded, setLoaded] = useState(!!window.firebaseModules);
-
-            useEffect(() => {
-                if (loaded) return;
-                const handler = () => setLoaded(true);
-                window.addEventListener('firebase-ready', handler);
-                return () => window.removeEventListener('firebase-ready', handler);
-            }, [loaded]);
-
-            if (!loaded) return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-blue-600"><Icons.Loader2 className="w-8 h-8 animate-spin" /></div>;
-
-            return <MainApp />;
-        }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(<MainApp />);
     </script>
 </body>
 </html>
