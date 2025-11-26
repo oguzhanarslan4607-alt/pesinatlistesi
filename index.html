@@ -31,7 +31,6 @@
         const { useState, useEffect, useRef, useMemo } = React;
         
         // --- SABİT İKON TANIMLARI (SVG PATHLERİ) ---
-        // Dış kütüphane bağımlılığı yoktur.
         const ICON_PATHS = {
             'trash-2': <><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></>,
             'plus-circle': <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></>,
@@ -41,6 +40,7 @@
             'calendar': <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
             'wallet': <><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v-8Z"/></>,
             'download': <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+            'upload': <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>,
             'cloud': <><path d="M17.5 19c0-3.037-2.463-5.5-5.5-5.5S6.5 15.963 6.5 19"/><path d="M17.5 19c3.037 0 5.5-2.463 5.5-5.5S20.537 8 17.5 8h-1.7c-1.3-3.5-4.9-6-8.8-6-5.5 0-10 4.5-10 10 0 1.5.4 3 1 4.2"/></>,
             'loader-2': <><path d="M21 12a9 9 0 1 1-6.219-8.56"/></>,
             'search': <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
@@ -61,7 +61,9 @@
             'paperclip': <><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></>,
             'lock': <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
             'log-in': <><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></>,
-            'hard-drive': <><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></>
+            'hard-drive': <><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></>,
+            'file-down': <><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M7 11l5 5 5-5"/><path d="M12 4v12"/></>,
+            'file-up': <><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></>
         };
 
         const Icon = ({ name, size = 20, className, ...props }) => {
@@ -83,6 +85,7 @@
             Calendar: (p) => <Icon name="calendar" {...p} />,
             Wallet: (p) => <Icon name="wallet" {...p} />,
             Download: (p) => <Icon name="download" {...p} />,
+            Upload: (p) => <Icon name="upload" {...p} />,
             Cloud: (p) => <Icon name="cloud" {...p} />,
             Loader2: (p) => <Icon name="loader-2" {...p} />,
             Search: (p) => <Icon name="search" {...p} />,
@@ -103,15 +106,16 @@
             Paperclip: (p) => <Icon name="paperclip" {...p} />,
             Lock: (p) => <Icon name="lock" {...p} />,
             LogIn: (p) => <Icon name="log-in" {...p} />,
-            HardDrive: (p) => <Icon name="hard-drive" {...p} />
+            HardDrive: (p) => <Icon name="hard-drive" {...p} />,
+            FileDown: (p) => <Icon name="file-down" {...p} />,
+            FileUp: (p) => <Icon name="file-up" {...p} />
         };
 
         // --- LOCAL STORAGE ANAHTARI ---
-        const STORAGE_KEY = 'pesinat_takip_v1';
+        const STORAGE_KEY = 'pesinat_takip_v2_secure';
 
         // --- MAIN APPLICATION COMPONENT ---
         function MainApp() {
-            // --- STATE'LER ---
             const [isAuthenticated, setIsAuthenticated] = useState(false);
             const [loginId, setLoginId] = useState('');
             const [loginPass, setLoginPass] = useState('');
@@ -148,13 +152,14 @@
 
             const fileInputRef = useRef(null);
             const editFileInputRef = useRef(null);
+            const jsonImportRef = useRef(null); // JSON import için ref
 
             // Veriler değiştiğinde LocalStorage'a kaydet
             useEffect(() => {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
             }, [entries]);
 
-            // Otomatik Makbuz No Hesaplama (Her veri değişiminde)
+            // Otomatik Makbuz No
             useEffect(() => {
                 let maxReceiptNo = 0;
                 entries.forEach(entry => {
@@ -166,7 +171,6 @@
                 const nextNo = (maxReceiptNo + 1).toString().padStart(6, '0');
                 
                 setFormData(prev => {
-                    // Kullanıcı henüz bir şey yazmadıysa numarayı güncelle
                     if (!prev.staffName && !prev.amount && !prev.customerName) {
                         return { ...prev, receiptNo: nextNo };
                     }
@@ -174,6 +178,7 @@
                 });
             }, [entries]);
 
+            // --- GİRİŞ FONKSİYONU ---
             const handleLogin = (e) => {
                 e.preventDefault();
                 if (loginId === '1052519451' && loginPass === 'icardi1905') {
@@ -184,6 +189,45 @@
                 }
             };
 
+            // --- YEDEKLEME / GERİ YÜKLEME FONKSİYONLARI ---
+            const handleExportJSON = () => {
+                const dataStr = JSON.stringify(entries, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `pesinat_sistem_yedek_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const handleImportJSON = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (Array.isArray(importedData)) {
+                            if (confirm("Mevcut verilerin üzerine bu yedek dosyasını yüklemek istediğinize emin misiniz?")) {
+                                setEntries(importedData);
+                                alert("Yedek başarıyla yüklendi!");
+                            }
+                        } else {
+                            alert("Geçersiz dosya formatı.");
+                        }
+                    } catch (err) {
+                        alert("Dosya okunamadı: " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                // Reset input
+                e.target.value = '';
+            };
+
+            // --- DİĞER FONKSİYONLAR ---
             const handleImageUpload = (file, callback) => {
                 if (!file) return;
                 if (file.size > 5 * 1024 * 1024) { alert("Dosya boyutu 5MB'dan küçük olmalıdır."); return; }
@@ -212,19 +256,15 @@
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!formData.staffName || !formData.amount) return;
-                
                 const newEntry = {
-                    id: Date.now().toString(), // Benzersiz ID
+                    id: Date.now().toString(),
                     ...formData,
                     amount: parseFloat(formData.amount),
                     status: 'Teslim Edilmedi',
                     history: [],
                     createdAt: new Date().toISOString()
                 };
-
                 setEntries(prev => [...prev, newEntry]);
-                
-                // Formu temizle
                 const currentNo = parseInt(formData.receiptNo || "0", 10);
                 const nextNo = (currentNo + 1).toString().padStart(6, '0');
                 setFormData({ receiptNo: nextNo, date: formData.date, staffName: '', office: '', customerName: '', amount: '', image: null });
@@ -232,75 +272,18 @@
             };
 
             const handleDeleteClick = (id) => setDeleteConfirmId(id);
-            
-            const confirmDelete = () => {
-                setEntries(prev => prev.filter(item => item.id !== deleteConfirmId));
-                setDeleteConfirmId(null);
-            };
-
+            const confirmDelete = () => { setEntries(prev => prev.filter(item => item.id !== deleteConfirmId)); setDeleteConfirmId(null); };
             const handleEditClick = (item) => setEditingItem({ ...item, original: { ...item } });
             const handleEditChange = (e) => { const { name, value } = e.target; setEditingItem(prev => ({ ...prev, [name]: value })); };
-            
             const saveEdit = () => {
                 if (!editingItem) return;
-                
-                const hasChanges = editingItem.receiptNo !== editingItem.original.receiptNo || 
-                                   editingItem.date !== editingItem.original.date || 
-                                   editingItem.staffName !== editingItem.original.staffName || 
-                                   editingItem.office !== editingItem.original.office || 
-                                   editingItem.customerName !== editingItem.original.customerName || 
-                                   parseFloat(editingItem.amount) !== editingItem.original.amount || 
-                                   editingItem.status !== editingItem.original.status || 
-                                   editingItem.image !== editingItem.original.image;
-                
+                const hasChanges = editingItem.receiptNo !== editingItem.original.receiptNo || editingItem.date !== editingItem.original.date || editingItem.staffName !== editingItem.original.staffName || editingItem.office !== editingItem.original.office || editingItem.customerName !== editingItem.original.customerName || parseFloat(editingItem.amount) !== editingItem.original.amount || editingItem.status !== editingItem.original.status || editingItem.image !== editingItem.original.image;
                 if (!hasChanges) { setEditingItem(null); return; }
-
-                // Geçmiş kaydı oluştur
-                const historyEntry = { 
-                    updatedAt: new Date().toISOString(), 
-                    oldData: { 
-                        receiptNo: editingItem.original.receiptNo || '', 
-                        date: editingItem.original.date, 
-                        staffName: editingItem.original.staffName, 
-                        office: editingItem.original.office || '', 
-                        customerName: editingItem.original.customerName, 
-                        amount: editingItem.original.amount, 
-                        status: editingItem.original.status || 'Teslim Edilmedi' 
-                    } 
-                };
-
-                setEntries(prev => prev.map(item => {
-                    if (item.id === editingItem.id) {
-                        return {
-                            ...item,
-                            receiptNo: editingItem.receiptNo,
-                            date: editingItem.date,
-                            staffName: editingItem.staffName,
-                            office: editingItem.office,
-                            customerName: editingItem.customerName,
-                            amount: parseFloat(editingItem.amount),
-                            status: editingItem.status,
-                            image: editingItem.image,
-                            history: [...(item.history || []), historyEntry]
-                        };
-                    }
-                    return item;
-                }));
-                
+                const historyEntry = { updatedAt: new Date().toISOString(), oldData: { receiptNo: editingItem.original.receiptNo || '', date: editingItem.original.date, staffName: editingItem.original.staffName, office: editingItem.original.office || '', customerName: editingItem.original.customerName, amount: editingItem.original.amount, status: editingItem.original.status || 'Teslim Edilmedi' } };
+                setEntries(prev => prev.map(item => { if (item.id === editingItem.id) { return { ...item, receiptNo: editingItem.receiptNo, date: editingItem.date, staffName: editingItem.staffName, office: editingItem.office, customerName: editingItem.customerName, amount: parseFloat(editingItem.amount), status: editingItem.status, image: editingItem.image, history: [...(item.history || []), historyEntry] }; } return item; }));
                 setEditingItem(null);
             };
-            
-            const toggleStatus = (entry) => {
-                const newStatus = entry.status === 'Teslim Edildi' ? 'Teslim Edilmedi' : 'Teslim Edildi';
-                const historyEntry = { updatedAt: new Date().toISOString(), type: 'status_change', oldData: { ...entry } };
-                
-                setEntries(prev => prev.map(item => {
-                    if (item.id === entry.id) {
-                        return { ...item, status: newStatus, history: [...(item.history || []), historyEntry] };
-                    }
-                    return item;
-                }));
-            };
+            const toggleStatus = (entry) => { const newStatus = entry.status === 'Teslim Edildi' ? 'Teslim Edilmedi' : 'Teslim Edildi'; const historyEntry = { updatedAt: new Date().toISOString(), type: 'status_change', oldData: { ...entry } }; setEntries(prev => prev.map(item => { if (item.id === entry.id) { return { ...item, status: newStatus, history: [...(item.history || []), historyEntry] }; } return item; })); };
 
             const printReceipt = (entry) => {
                 const printWindow = window.open('', '', 'width=800,height=600');
@@ -331,55 +314,31 @@
                 return { totalRevenue, monthlyRevenue, officeStats, sortedStaff };
             }, [entries]);
 
-            // --- RENDER LOGIN SCREEN ---
+            // --- LOGIN SCREEN ---
             if (!isAuthenticated) {
                 return (
                     <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
                         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200">
-                            <div className="flex justify-center mb-6">
-                                <div className="bg-blue-100 p-4 rounded-full"><Icons.Lock className="w-8 h-8 text-blue-600" /></div>
-                            </div>
+                            <div className="flex justify-center mb-6"><div className="bg-blue-100 p-4 rounded-full"><Icons.Lock className="w-8 h-8 text-blue-600" /></div></div>
                             <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">Güvenli Giriş</h2>
                             <p className="text-center text-slate-500 mb-6 text-sm">Veriler sadece bu cihazda saklanmaktadır.</p>
-                            
                             <form onSubmit={handleLogin} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Kullanıcı ID</label>
-                                    <div className="relative"><div className="absolute left-3 top-3 w-4 h-4 text-slate-400"><Icons.User className="w-4 h-4" /></div><input type="text" value={loginId} onChange={(e) => setLoginId(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="ID giriniz" autoFocus /></div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Şifre</label>
-                                    <div className="relative"><div className="absolute left-3 top-3 w-4 h-4 text-slate-400"><Icons.Ticket className="w-4 h-4" /></div><input type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="••••••••" /></div>
-                                </div>
+                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Kullanıcı ID</label><div className="relative"><div className="absolute left-3 top-3 w-4 h-4 text-slate-400"><Icons.User className="w-4 h-4" /></div><input type="text" value={loginId} onChange={(e) => setLoginId(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="ID giriniz" autoFocus /></div></div>
+                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Şifre</label><div className="relative"><div className="absolute left-3 top-3 w-4 h-4 text-slate-400"><Icons.Ticket className="w-4 h-4" /></div><input type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="••••••••" /></div></div>
                                 {loginError && (<div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2 animate-pulse"><Icons.AlertCircle className="w-4 h-4" />{loginError}</div>)}
                                 <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2"><Icons.LogIn className="w-4 h-4" /> Giriş Yap</button>
                             </form>
-                            <div className="mt-6 text-center text-xs text-slate-400">Peşinat Takip Sistemi v3.0 (Yerel Kayıt)</div>
+                            <div className="mt-6 text-center text-xs text-slate-400">Peşinat Takip Sistemi v4.2 (Offline)</div>
                         </div>
                     </div>
                 );
             }
 
-            // --- RENDER MAIN APP ---
             return (
                 <div className="min-h-screen bg-slate-50 p-4 md:p-8 relative">
                     {/* MODALLAR */}
-                    {deleteConfirmId && (
-                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                            <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-                                <h3 className="text-lg font-bold text-slate-900 text-center">Emin misiniz?</h3>
-                                <p className="text-slate-500 mt-1 text-sm text-center">Bu kayıt kalıcı olarak silinecek.</p>
-                                <div className="flex gap-3 w-full mt-4"><button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-2 bg-slate-100 rounded text-slate-700">İptal</button><button onClick={confirmDelete} className="flex-1 py-2 bg-red-600 text-white rounded">Sil</button></div>
-                            </div>
-                        </div>
-                    )}
-
-                    {imagePreviewUrl && (
-                        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setImagePreviewUrl(null)}>
-                            <div className="bg-white p-2 rounded-lg max-w-3xl max-h-[90vh] overflow-auto"><img src={imagePreviewUrl} alt="Dekont" className="max-w-full h-auto rounded" /><div className="text-center mt-2 text-sm text-slate-500">Kapatmak için dışarı tıklayın</div></div>
-                        </div>
-                    )}
-
+                    {deleteConfirmId && (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"><div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full"><h3 className="text-lg font-bold text-slate-900 text-center">Emin misiniz?</h3><p className="text-slate-500 mt-1 text-sm text-center">Bu kayıt kalıcı olarak silinecek.</p><div className="flex gap-3 w-full mt-4"><button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-2 bg-slate-100 rounded text-slate-700">İptal</button><button onClick={confirmDelete} className="flex-1 py-2 bg-red-600 text-white rounded">Sil</button></div></div></div>)}
+                    {imagePreviewUrl && (<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setImagePreviewUrl(null)}><div className="bg-white p-2 rounded-lg max-w-3xl max-h-[90vh] overflow-auto"><img src={imagePreviewUrl} alt="Dekont" className="max-w-full h-auto rounded" /><div className="text-center mt-2 text-sm text-slate-500">Kapatmak için dışarı tıklayın</div></div></div>)}
                     {editingItem && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
                             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl my-8">
@@ -398,18 +357,9 @@
                                             {editingItem.image && (<button type="button" onClick={() => setImagePreviewUrl(editingItem.image)} className="p-2 text-blue-600 hover:bg-blue-50 rounded" title="Görüntüle"><Icons.ImageIcon className="w-5 h-5" /></button>)}
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-semibold">Durum</label>
-                                        <select name="status" value={editingItem.status} onChange={handleEditChange} className="w-full p-2.5 border rounded-lg bg-white">
-                                            <option value="Teslim Edilmedi">Teslim Edilmedi</option>
-                                            <option value="Teslim Edildi">Teslim Edildi</option>
-                                        </select>
-                                    </div>
+                                    <div className="space-y-2"><label className="text-sm font-semibold">Durum</label><select name="status" value={editingItem.status} onChange={handleEditChange} className="w-full p-2.5 border rounded-lg bg-white"><option value="Teslim Edilmedi">Teslim Edilmedi</option><option value="Teslim Edildi">Teslim Edildi</option></select></div>
                                 </div>
-                                <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-xl">
-                                    <button onClick={() => setEditingItem(null)} className="px-5 py-2.5 text-slate-600 hover:bg-slate-200 rounded-lg font-medium">İptal</button>
-                                    <button onClick={saveEdit} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2"><Icons.Save className="w-4 h-4" /> Kaydet</button>
-                                </div>
+                                <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-xl"><button onClick={() => setEditingItem(null)} className="px-5 py-2.5 text-slate-600 hover:bg-slate-200 rounded-lg font-medium">İptal</button><button onClick={saveEdit} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2"><Icons.Save className="w-4 h-4" /> Kaydet</button></div>
                             </div>
                         </div>
                     )}
@@ -417,50 +367,45 @@
                     {/* HEADER */}
                     <div className="max-w-6xl mx-auto space-y-6">
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-blue-900 flex items-center gap-2"><Icons.Wallet className="w-8 h-8 text-blue-600" /> Peşinat Tablosu</h1>
-                                <p className="text-slate-500 text-sm mt-1 flex items-center gap-1"><Icons.HardDrive className="w-3 h-3 text-green-500" /> Veriler cihazınızda saklanıyor</p>
-                            </div>
-                            <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
+                            <div><h1 className="text-2xl font-bold text-blue-900 flex items-center gap-2"><Icons.Wallet className="w-8 h-8 text-blue-600" /> Peşinat Tablosu</h1><p className="text-slate-500 text-sm mt-1 flex items-center gap-1"><Icons.HardDrive className="w-3 h-3 text-green-500" /> Veriler cihazınızda saklanıyor</p></div>
+                            <div className="flex flex-wrap items-center gap-2 bg-slate-100 p-1 rounded-lg">
                                 <button onClick={() => setViewMode('list')} className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}><Icons.List className="w-4 h-4" /> Liste</button>
                                 <button onClick={() => setViewMode('dashboard')} className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all ${viewMode === 'dashboard' ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}><Icons.LayoutDashboard className="w-4 h-4" /> İstatistikler</button>
-                                <button onClick={() => window.location.reload()} className="px-3 py-2 rounded-md text-sm font-medium text-red-500 hover:bg-red-50 transition-colors ml-2 border-l border-slate-200 pl-4" title="Çıkış Yap"><Icons.Lock className="w-4 h-4" /></button>
+                                
+                                {/* YEDEKLEME BUTONLARI */}
+                                <div className="h-6 w-px bg-slate-300 mx-1"></div>
+                                <button onClick={handleExportJSON} className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-white hover:shadow transition-all flex items-center gap-1" title="Yedek İndir"><Icons.FileDown className="w-4 h-4" /> Yedekle</button>
+                                <label className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-white hover:shadow transition-all flex items-center gap-1 cursor-pointer" title="Yedek Yükle">
+                                    <Icons.FileUp className="w-4 h-4" /> Yükle
+                                    <input type="file" accept=".json" className="hidden" ref={jsonImportRef} onChange={handleImportJSON} />
+                                </label>
+
+                                <div className="h-6 w-px bg-slate-300 mx-1"></div>
+                                <button onClick={() => window.location.reload()} className="px-3 py-2 rounded-md text-sm font-medium text-red-500 hover:bg-red-50 transition-colors" title="Çıkış Yap"><Icons.Lock className="w-4 h-4" /></button>
                             </div>
                         </div>
 
+                        {/* DASHBOARD */}
                         {viewMode === 'dashboard' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-blue-200">
-                                        <div className="text-blue-100 text-sm font-medium mb-1">Toplam Ciro</div>
-                                        <div className="text-3xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
-                                    </div>
-                                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                                        <div className="text-slate-500 text-sm font-medium mb-1">Bu Ayın Cirosu</div>
-                                        <div className="text-3xl font-bold text-slate-800">{formatCurrency(stats.monthlyRevenue)}</div>
-                                    </div>
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-blue-200"><div className="text-blue-100 text-sm font-medium mb-1">Toplam Ciro</div><div className="text-3xl font-bold">{formatCurrency(stats.totalRevenue)}</div></div>
+                                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm"><div className="text-slate-500 text-sm font-medium mb-1">Bu Ayın Cirosu</div><div className="text-3xl font-bold text-slate-800">{formatCurrency(stats.monthlyRevenue)}</div></div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                         <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Icons.Building2 className="w-5 h-5 text-slate-400" /> Ofis Performansı</h3>
-                                        <div className="space-y-3">
-                                            {Object.entries(stats.officeStats).map(([office, amount]) => (
-                                                <div key={office}><div className="flex justify-between text-sm mb-1"><span className="font-medium text-slate-700">{office}</span><span className="text-slate-500">{formatCurrency(amount)}</span></div><div className="w-full bg-slate-100 rounded-full h-2.5"><div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${(amount / stats.totalRevenue) * 100}%` }}></div></div></div>
-                                            ))}
-                                        </div>
+                                        <div className="space-y-3">{Object.entries(stats.officeStats).map(([office, amount]) => (<div key={office}><div className="flex justify-between text-sm mb-1"><span className="font-medium text-slate-700">{office}</span><span className="text-slate-500">{formatCurrency(amount)}</span></div><div className="w-full bg-slate-100 rounded-full h-2.5"><div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${(amount / stats.totalRevenue) * 100}%` }}></div></div></div>))}</div>
                                     </div>
                                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                         <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Icons.User className="w-5 h-5 text-slate-400" /> En İyi 5 Personel</h3>
-                                        <div className="space-y-4">
-                                            {stats.sortedStaff.map(([name, amount], index) => (
-                                                <div key={name} className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-600'}`}>{index + 1}</div><div className="flex-1"><div className="text-sm font-medium text-slate-800">{name}</div><div className="text-xs text-slate-500">{formatCurrency(amount)}</div></div><div className="text-blue-600 font-bold text-sm">%{Math.round((amount / stats.totalRevenue) * 100)}</div></div>
-                                            ))}
-                                        </div>
+                                        <div className="space-y-4">{stats.sortedStaff.map(([name, amount], index) => (<div key={name} className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-600'}`}>{index + 1}</div><div className="flex-1"><div className="text-sm font-medium text-slate-800">{name}</div><div className="text-xs text-slate-500">{formatCurrency(amount)}</div></div><div className="text-blue-600 font-bold text-sm">%{Math.round((amount / stats.totalRevenue) * 100)}</div></div>))}</div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
+                        {/* LISTE */}
                         {viewMode === 'list' && (
                             <>
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -493,15 +438,7 @@
                                         <table className="w-full text-left border-collapse">
                                             <thead>
                                                 <tr className="bg-white border-b border-slate-200 text-slate-600 text-sm uppercase tracking-wider">
-                                                    <th className="p-4 font-semibold w-24">Makbuz</th>
-                                                    <th className="p-4 font-semibold w-28">Tarih</th>
-                                                    <th className="p-4 font-semibold">Personel</th>
-                                                    <th className="p-4 font-semibold">Ofis</th>
-                                                    <th className="p-4 font-semibold">Müşteri</th>
-                                                    <th className="p-4 font-semibold text-center w-16">Ek</th>
-                                                    <th className="p-4 font-semibold w-32 text-center">Durum</th>
-                                                    <th className="p-4 font-semibold text-right">Nakit</th>
-                                                    <th className="p-4 font-semibold w-36 text-center">İşlem</th>
+                                                    <th className="p-4 font-semibold w-24">Makbuz</th><th className="p-4 font-semibold w-28">Tarih</th><th className="p-4 font-semibold">Personel</th><th className="p-4 font-semibold">Ofis</th><th className="p-4 font-semibold">Müşteri</th><th className="p-4 font-semibold text-center w-16">Ek</th><th className="p-4 font-semibold w-32 text-center">Durum</th><th className="p-4 font-semibold text-right">Nakit</th><th className="p-4 font-semibold w-36 text-center">İşlem</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-100">
@@ -514,33 +451,15 @@
                                                             <td className="p-4 text-slate-800 font-medium">{entry.staffName}</td>
                                                             <td className="p-4 text-slate-600 text-sm">{entry.office}</td>
                                                             <td className="p-4 text-slate-800">{entry.customerName}</td>
-                                                            <td className="p-4 text-center">
-                                                                {entry.image && (<button onClick={() => setImagePreviewUrl(entry.image)} className="text-slate-400 hover:text-blue-600 transition-colors" title="Dekontu Gör"><Icons.ImageIcon className="w-5 h-5" /></button>)}
-                                                            </td>
-                                                            <td className="p-4 text-center">
-                                                                <button onClick={() => toggleStatus(entry)} className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-semibold border ${isDelivered ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'}`}>
-                                                                    {isDelivered ? <Icons.CheckCircle2 className="w-3 h-3" /> : <Icons.Clock className="w-3 h-3" />} {entry.status || 'Bekliyor'}
-                                                                </button>
-                                                            </td>
+                                                            <td className="p-4 text-center">{entry.image && (<button onClick={() => setImagePreviewUrl(entry.image)} className="text-slate-400 hover:text-blue-600 transition-colors" title="Dekontu Gör"><Icons.ImageIcon className="w-5 h-5" /></button>)}</td>
+                                                            <td className="p-4 text-center"><button onClick={() => toggleStatus(entry)} className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-semibold border ${isDelivered ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'}`}>{isDelivered ? <Icons.CheckCircle2 className="w-3 h-3" /> : <Icons.Clock className="w-3 h-3" />} {entry.status || 'Bekliyor'}</button></td>
                                                             <td className="p-4 text-right font-mono font-medium text-slate-700">{formatCurrency(entry.amount)}</td>
-                                                            <td className="p-4 text-center">
-                                                                <div className="flex items-center justify-center gap-1">
-                                                                    <button onClick={() => printReceipt(entry)} className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100" title="Makbuz Yazdır"><Icons.Printer className="w-4 h-4" /></button>
-                                                                    <button onClick={() => handleEditClick(entry)} className="text-blue-400 hover:text-blue-600 p-1.5 rounded hover:bg-blue-100" title="Düzenle"><Icons.Pencil className="w-4 h-4" /></button>
-                                                                    <button onClick={() => handleDeleteClick(entry.id)} className="text-slate-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50" title="Sil"><Icons.Trash2 className="w-4 h-4" /></button>
-                                                                </div>
-                                                            </td>
+                                                            <td className="p-4 text-center"><div className="flex items-center justify-center gap-1"><button onClick={() => printReceipt(entry)} className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100" title="Makbuz Yazdır"><Icons.Printer className="w-4 h-4" /></button><button onClick={() => handleEditClick(entry)} className="text-blue-400 hover:text-blue-600 p-1.5 rounded hover:bg-blue-100" title="Düzenle"><Icons.Pencil className="w-4 h-4" /></button><button onClick={() => handleDeleteClick(entry.id)} className="text-slate-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50" title="Sil"><Icons.Trash2 className="w-4 h-4" /></button></div></td>
                                                         </tr>
                                                     );
                                                 })}
                                             </tbody>
-                                            <tfoot className="bg-slate-50 font-bold text-slate-800">
-                                                <tr>
-                                                    <td colSpan="7" className="p-4 text-right text-slate-600 uppercase text-sm">{dateFilter.start || dateFilter.end ? 'Tarih Aralığı Toplamı:' : (searchTerm ? 'Filtreli Toplam:' : 'Genel Toplam:')}</td>
-                                                    <td className="p-4 text-right text-green-700 font-mono text-lg">{formatCurrency(totalAmount)}</td>
-                                                    <td></td>
-                                                </tr>
-                                            </tfoot>
+                                            <tfoot className="bg-slate-50 font-bold text-slate-800"><tr><td colSpan="7" className="p-4 text-right text-slate-600 uppercase text-sm">{dateFilter.start || dateFilter.end ? 'Tarih Aralığı Toplamı:' : (searchTerm ? 'Filtreli Toplam:' : 'Genel Toplam:')}</td><td className="p-4 text-right text-green-700 font-mono text-lg">{formatCurrency(totalAmount)}</td><td></td></tr></tfoot>
                                         </table>
                                     </div>
                                 </div>
